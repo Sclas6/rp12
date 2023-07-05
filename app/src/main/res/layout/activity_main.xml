@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.842"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textBox"
         app:layout_constraintVertical_bias="0.173" />
 
     <androidx.constraintlayout.widget.Group
@@ -95,25 +95,74 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="325dp"
-        android:layout_height="190dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="322dp"
+        android:layout_height="232dp"
+        android:layout_marginTop="40dp"
         android:layout_marginBottom="52dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.454"
+        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintVertical_bias="0.018">
 
         <Button
             android:id="@+id/buttonSortBubble"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_margin="10dp"
+            android:layout_margin="2dp"
             android:contentDescription="@string/buttonSortBubble" />
+
+        <Button
+            android:id="@+id/buttonSortSelection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="2dp"
+            android:contentDescription="@string/buttonSortBubble" />
+
+        <Button
+            android:id="@+id/buttonSortInsertion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="2dp"
+            android:contentDescription="@string/buttonSortBubble" />
+
+        <Button
+            android:id="@+id/buttonSortQuick"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="2dp"
+            android:contentDescription="@string/buttonSortBubble" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/textBox"
+        android:layout_width="409dp"
+        android:layout_height="96dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <TextView
+            android:id="@+id/textCompare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="25sp"
+            android:layout_margin="10dp" />
+        <TextView
+            android:id="@+id/textSwap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="25sp"
+            android:layout_margin="10dp" />
 
     </LinearLayout>
 
