@@ -16,7 +16,9 @@
         app:layout_constraintHorizontal_bias="0.842"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textBox"
-        app:layout_constraintVertical_bias="0.173" />
+        app:layout_constraintVertical_bias="0.173" >
+
+    </com.github.mikephil.charting.charts.ScatterChart>
 
     <androidx.constraintlayout.widget.Group
         android:layout_width="wrap_content"
@@ -163,6 +165,26 @@
             android:layout_gravity="center"
             android:textSize="25sp"
             android:layout_margin="10dp" />
+
+        <ImageButton
+            android:id="@+id/buttonSortMonkey"
+            android:layout_width = "96dp"
+            android:layout_height="96dp"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/monkey"
+            android:scaleType="fitCenter"
+            android:background="@null"
+            android:contentDescription="@string/buttonSortStalin" />
+
+        <ImageButton
+            android:id="@+id/buttonSortStalin"
+            android:layout_width = "96dp"
+            android:layout_height="96dp"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/red_star"
+            android:scaleType="fitCenter"
+            android:background="@null"
+            android:contentDescription="@string/buttonSortStalin" />
 
     </LinearLayout>
 

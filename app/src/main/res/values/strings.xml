@@ -3,4 +3,5 @@
     <string name="buttonGenArray">GenArray</string>
     <string name="buttonReset">Reset</string>
     <string name="buttonSortBubble">sortBubble</string>
+    <string name="buttonSortStalin">stalin</string>
 </resources>

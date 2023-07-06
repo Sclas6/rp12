@@ -1,27 +1,38 @@
 package com.example.rp12java;
 
 import static android.os.SystemClock.sleep;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
 import com.github.mikephil.charting.charts.ScatterChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.ScatterData;
 import com.github.mikephil.charting.data.ScatterDataSet;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
+    private boolean isSorting = false;
     private int compareCount = 0;
     private int swapCount = 0;
+    private Button genArrayButton = null;
+    private Button bubbleSortButton = null;
+    private Button selectionSortButton = null;
+    private Button insertionSortButton = null;
+    private Button quickSortButton = null;
+    private TextView compare = null;
+    private TextView swap = null;
+
+    private ImageButton stalinSortButton = null;
+    private ImageButton monkeySortButton = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,14 +43,16 @@ public class MainActivity extends AppCompatActivity {
         NumberPicker rangePicker = findViewById(R.id.numPickerRange);
         TextView sizeText = findViewById(R.id.textSize);
         TextView rangeText = findViewById(R.id.textRange);
-        TextView compareCount = findViewById(R.id.textCompare);
-        TextView swapCount = findViewById(R.id.textSwap);
         Button resetButton = findViewById(R.id.buttonReset);
-        Button genArrayButton = findViewById(R.id.buttonGenArray);
-        Button bubbleSortButton = findViewById(R.id.buttonSortBubble);
-        Button selectionSortButton = findViewById(R.id.buttonSortSelection);
-        Button insertionSortButton = findViewById(R.id.buttonSortInsertion);
-        Button quickSortButton = findViewById(R.id.buttonSortQuick);
+        compare = findViewById(R.id.textCompare);
+        swap = findViewById(R.id.textSwap);
+        genArrayButton = findViewById(R.id.buttonGenArray);
+        bubbleSortButton = findViewById(R.id.buttonSortBubble);
+        selectionSortButton = findViewById(R.id.buttonSortSelection);
+        insertionSortButton = findViewById(R.id.buttonSortInsertion);
+        quickSortButton = findViewById(R.id.buttonSortQuick);
+        stalinSortButton = findViewById(R.id.buttonSortStalin);
+        monkeySortButton = findViewById(R.id.buttonSortMonkey);
 
         sizePicker.setMaxValue(500);
         sizePicker.setMinValue(1);
@@ -49,10 +62,9 @@ public class MainActivity extends AppCompatActivity {
         rangePicker.setValue(100);
         sizeText.setText("　要素数　");
         rangeText.setText("データ範囲");
-        compareCount.setText("比較: 0");
-        swapCount.setText("交換: 0");
+        compare.setText("比較: 0");
+        swap.setText("交換: 0");
         resetButton.setText("リセット");
-        resetButton.setEnabled(false);
         genArrayButton.setText("配列生成");
         bubbleSortButton.setText("バブルソート開始");
         selectionSortButton.setText("選択ソート開始");
@@ -61,21 +73,18 @@ public class MainActivity extends AppCompatActivity {
 
         Handler handler = new Handler(Looper.getMainLooper());
         ArrayList<Integer> data = genRandomArray(20, 100);
-        //ScatterDataSet dataSets = new ScatterDataSet(array2Data(data),"test");
         chart.setData(new ScatterData(new ScatterDataSet(array2Data(data), "test")));
         chart.invalidate();
 
         resetButton.setOnClickListener(v -> {
-            bubbleSortButton.setEnabled(true);
-            selectionSortButton.setEnabled(true);
-            insertionSortButton.setEnabled(true);
-            quickSortButton.setEnabled(true);
+            if(isSorting) isSorting = false;
+            sleep(50);
+            setSortButton(true);
             genArrayButton.setEnabled(true);
-            compareCount.setText("比較: 0");
-            swapCount.setText("交換: 0");
+            compare.setText("比較: 0");
+            swap.setText("交換: 0");
             resetCount();
             new Thread(() -> updateView(data, chart)).start();
-            resetButton.setEnabled(false);
         });
 
         genArrayButton.setOnClickListener(v -> new Thread(() -> {
@@ -84,68 +93,55 @@ public class MainActivity extends AppCompatActivity {
             chart.setData(new ScatterData(new ScatterDataSet(array2Data(data), "")));
             chart.getData().notifyDataChanged();
             chart.invalidate();
-            handler.post(() -> {
-                bubbleSortButton.setEnabled(true);
-                selectionSortButton.setEnabled(true);
-                insertionSortButton.setEnabled(true);
-                quickSortButton.setEnabled(true);
-            });
+            handler.post(() -> setSortButton(true));
         }).start());
 
         bubbleSortButton.setOnClickListener(v -> {
-            bubbleSortButton.setEnabled(false);
-            selectionSortButton.setEnabled(false);
-            insertionSortButton.setEnabled(false);
-            quickSortButton.setEnabled(false);
-            resetButton.setEnabled(false);
+            setSortButton(false);
             genArrayButton.setEnabled(false);
-            new Thread(() -> {
-                bubbleSort(data, chart, compareCount, swapCount);
-                handler.post(() -> resetButton.setEnabled(true));
-            }).start();
+            new Thread(() -> bubbleSort(data, chart)).start();
         });
 
         selectionSortButton.setOnClickListener(v -> {
-            bubbleSortButton.setEnabled(false);
-            selectionSortButton.setEnabled(false);
-            insertionSortButton.setEnabled(false);
-            quickSortButton.setEnabled(false);
-            resetButton.setEnabled(false);
+            setSortButton(false);
             genArrayButton.setEnabled(false);
-            new Thread(() -> {
-                selectionSort(data, chart, compareCount, swapCount);
-                handler.post(() -> resetButton.setEnabled(true));
-            }).start();
+            new Thread(() -> selectionSort(data, chart)).start();
         });
 
         insertionSortButton.setOnClickListener(v -> {
-            bubbleSortButton.setEnabled(false);
-            selectionSortButton.setEnabled(false);
-            insertionSortButton.setEnabled(false);
-            quickSortButton.setEnabled(false);
-            resetButton.setEnabled(false);
+            setSortButton(false);
             genArrayButton.setEnabled(false);
-            new Thread(() -> {
-                insertionSort(data, chart, compareCount, swapCount);
-                handler.post(() -> resetButton.setEnabled(true));
-            }).start();
+            new Thread(() -> insertionSort(data, chart)).start();
         });
 
         quickSortButton.setOnClickListener(v -> {
-            bubbleSortButton.setEnabled(false);
-            selectionSortButton.setEnabled(false);
-            insertionSortButton.setEnabled(false);
-            quickSortButton.setEnabled(false);
-            resetButton.setEnabled(false);
+            setSortButton(false);
             genArrayButton.setEnabled(false);
-            new Thread(() -> {
-                quickSort(data, 0, data.size() - 1, chart, compareCount, swapCount);
-                handler.post(() -> resetButton.setEnabled(true));
-            }).start();
+            isSorting = true;
+            new Thread(() -> quickSort(data, 0, data.size() - 1, chart)).start();
+        });
+
+        stalinSortButton.setOnClickListener(v -> {
+            setSortButton(false);
+            genArrayButton.setEnabled(false);
+            new Thread(() -> stalinSort(data, chart)).start();
+        });
+
+        monkeySortButton.setOnClickListener(v -> {
+            setSortButton(false);
+            genArrayButton.setEnabled(false);
+            new Thread(() -> monkeySort(data, chart)).start();
         });
     }
 
-
+    private void setSortButton(boolean b){
+        bubbleSortButton.setEnabled(b);
+        selectionSortButton.setEnabled(b);
+        insertionSortButton.setEnabled(b);
+        quickSortButton.setEnabled(b);
+        stalinSortButton.setEnabled(b);
+        monkeySortButton.setEnabled(b);
+    }
 
     private ArrayList<Integer> genRandomArray(int len, int max){
         Random rand = new Random();
@@ -181,39 +177,42 @@ public class MainActivity extends AppCompatActivity {
         return copied;
     }
 
-    @SuppressLint("DefaultLocale")
-    private void bubbleSort(ArrayList<Integer> rawList, ScatterChart chart, TextView c, TextView s){
+    private void bubbleSort(ArrayList<Integer> rawList, ScatterChart chart){
+        isSorting = true;
         ArrayList<Integer> list = copyArray(rawList, rawList.size());
         for(int i = 0; i < list.size() - 1; i++){
             for(int j = list.size() - 1; j > i; j--){
-                if(compare(list, j - 1, j, c) > 0){
-                    swap(list, j - 1, j, s);
+                if(!isSorting) return;
+                if(compare(list, j - 1, j) > 0){
+                    swap(list, j - 1, j);
                     updateView(list, chart);
                     sleep(50);
                 }
             }
         }
     }
-    @SuppressLint("DefaultLocale")
-    private void selectionSort(ArrayList<Integer> rawList, ScatterChart chart, TextView c, TextView s){
+    private void selectionSort(ArrayList<Integer> rawList, ScatterChart chart){
+        isSorting = true;
         ArrayList<Integer> list = copyArray(rawList, rawList.size());
         for(int i = 0; i < list.size() - 1; i++){
             int min = i;
             for(int j = i + 1; j < list.size(); j++){
-                if(compare(list, min, j, c) > 0) min = j;
+                if(!isSorting) return;
+                if(compare(list, min, j) > 0) min = j;
             }
-            swap(list, min, i, s);
+            swap(list, min, i);
             updateView(list, chart);
             sleep(50);
         }
     }
-    @SuppressLint("DefaultLocale")
-    private void insertionSort(ArrayList<Integer> rawList, ScatterChart chart, TextView c, TextView s){
+    private void insertionSort(ArrayList<Integer> rawList, ScatterChart chart){
+        isSorting = true;
         ArrayList<Integer> list = copyArray(rawList, rawList.size());
         for(int i = 1; i < list.size(); i++){
             int j = i;
-            while(j > 0 && compare(list, j - 1, j, c) > 0){
-                swap(list, j - 1, j, s);
+            while(j > 0 && compare(list, j - 1, j) > 0){
+                if(!isSorting) return;
+                swap(list, j - 1, j);
                 updateView(list, chart);
                 j--;
                 sleep(50);
@@ -221,43 +220,84 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("DefaultLocale")
-    private ArrayList<Integer> quickSort(ArrayList<Integer> rawList, int start, int end, ScatterChart chart, TextView c, TextView s){
+    private void monkeySort(ArrayList<Integer> rawList, ScatterChart chart){
+        isSorting = true;
         ArrayList<Integer> list = copyArray(rawList, rawList.size());
-        Log.d("r", rawList.toString());
-        Log.d("l", list.toString());
+        boolean sorted = false;
+        while(!sorted){
+            Collections.shuffle(list);
+            updateView(list, chart);
+            for(int i = 0; i < list.size() - 1;i++){
+                if(!isSorting) return;
+                if(compare(list, i, i + 1) > 0) break;
+                if(i == list.size() - 2) sorted = true;
+            }
+            sleep(50);
+        }
+    }
+    private int middle(ArrayList<Integer> list, int i, int j, int k){
+        int a = list.get(i);
+        int b = list.get(j);
+        int c = list.get(k);
+        if (a >= b){
+            if (b >= c) return j;
+            else if (a <= c) return i;
+            else return k;
+        }
+        else if (a > c) return i;
+        else if (b > c) return k;
+        else return j;
+    }
+
+    private ArrayList<Integer> quickSort(ArrayList<Integer> rawList, int start, int end, ScatterChart chart){
+        ArrayList<Integer> list = copyArray(rawList, rawList.size());
         int pivot, left, right;
         left = start;
         right = end;
-        pivot = left;
+        pivot = middle(list, left, right / 2, right);
         while(true) {
-            while (compare(list, left, pivot, c) < 0) left++;
-            while (compare(list, pivot, right, c) < 0) right--;
+            if(!isSorting) return list;
+            while (compare(list, left, pivot) < 0) left++;
+            while (compare(list, pivot, right) < 0) right--;
             if (left >= right) break;
-            swap(list, left, right, s);
+            swap(list, left, right);
             updateView(list, chart);
             sleep(50);
             if (pivot == left || pivot == right) pivot = (pivot == left) ? right : left;
             left++;
             right--;
         }
-        if(start < left - 1) list = quickSort(list, start, left - 1, chart, c, s);
-        if(right + 1 < end) list = quickSort(list, right + 1, end, chart, c, s);
+        if(start < left - 1) list = quickSort(list, start, left - 1, chart);
+        if(right + 1 < end) list = quickSort(list, right + 1, end, chart);
         return list;
     }
+
+    private void stalinSort(ArrayList<Integer> rawList, ScatterChart chart){
+        isSorting = true;
+        ArrayList<Integer> list = copyArray(rawList, rawList.size());
+        int i = 1;
+        while(i < list.size()){
+            if(!isSorting) return;
+            if(compare(list, i - 1, i) >= 0){
+                list.remove(i);
+                updateView(list, chart);
+            }else i++;
+            sleep(50);
+        }
+    }
     @SuppressLint("DefaultLocale")
-    int compare(ArrayList<Integer> list, int i, int j, TextView cCounter){
+    int compare(ArrayList<Integer> list, int i, int j){
         Handler handler = new Handler(Looper.getMainLooper());
         compareCount++;
-        handler.post(() -> cCounter.setText(String.format("比較: %d", compareCount)));
+        handler.post(() -> compare.setText(String.format("比較: %d", compareCount)));
         return list.get(i) - list.get(j);
     }
 
     @SuppressLint("DefaultLocale")
-    void swap(ArrayList<Integer> list, int i, int j, TextView sCounter){
+    void swap(ArrayList<Integer> list, int i, int j){
         Handler handler = new Handler(Looper.getMainLooper());
         swapCount++;
-        handler.post(() -> sCounter.setText(String.format("交換: %d", swapCount)));
+        handler.post(() -> swap.setText(String.format("交換: %d", swapCount)));
         int temp = list.get(i);
         list.set(i, list.get(j));
         list.set(j, temp);
